@@ -10,9 +10,6 @@ import re
 import leancloud
 
 
-
-from views.todos import todos_view
-
 app = Flask(__name__)
 sockets = Sockets(app)
 
