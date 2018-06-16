@@ -2,27 +2,39 @@
 
 from datetime import datetime
 
-from flask import Flask
+from flask import *
 from flask import render_template
 from flask_sockets import Sockets
+from 爬IT_HOME import *
+import re
+import leancloud
+
+
 
 from views.todos import todos_view
 
 app = Flask(__name__)
 sockets = Sockets(app)
 
-# 动态路由
-app.register_blueprint(todos_view, url_prefix='/todos')
-
-
-@app.route('/')
+@app.route('/',methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    if request.method == 'POST':
+        url = request.form['text']
+        Url = leancloud.Object.extend('it_url')
+        comment = Url()
+        query = comment.get('comment')
+        comment.set('url', str(url))
+        comment.save()
+        num = re.search('\d{1,7}', url).group(0)
+        list = getpage_commentinfo(str(num))
+        # print(num)
+        print(url)
+        return render_template('index.html',list=list)
+    if request.method == 'GET':
+        return render_template('index.html')
 
 
-@app.route('/time')
-def time():
-    return str(datetime.now())
+
 
 
 @sockets.route('/echo')
